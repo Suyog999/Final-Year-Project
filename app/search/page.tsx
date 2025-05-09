@@ -5,7 +5,7 @@ import * as React from 'react';
 import '../../src/app/globals.css';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-function search() {
+const Search = () => {
     const [selectedCategory, setSelectedCategory] = React.useState('');
     const router = useRouter();
 
@@ -46,4 +46,4 @@ function search() {
     </div>
 }
 
-export default search;
+export default Search;
