@@ -1,7 +1,6 @@
 import * as React from 'react';
 import '../../src/app/globals.css';
 import { Button } from '@/components/ui/button';
-import { AuroraBackground } from '@/components/ui/aurora-background';
 import Link from "next/link"
 export default function HomePage() {
     return (
