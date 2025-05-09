@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 function search() {
     const [selectedCategory, setSelectedCategory] = React.useState('');
-  const router = useRouter();
+    const router = useRouter();
 
   const handleSubmit = () => {
     if (selectedCategory) {
