@@ -14,6 +14,20 @@ type Product = {
 function AllProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [category, setCategory] = useState('');
+  const [expandedIndices, setExpandedIndices] = useState<Set<number>>(new Set());
+
+const toggleExpanded = (index: number) => {
+  setExpandedIndices(prev => {
+    const updated = new Set(prev);
+    if (updated.has(index)) {
+      updated.delete(index);
+    } else {
+      updated.add(index);
+    }
+    return updated;
+  });
+};
+
   console.log('Category:', category);
   useEffect(() => {
     const queryCategory = new URLSearchParams(window.location.search).get('category_name');
@@ -31,7 +45,7 @@ function AllProducts() {
 
   return (
     <div className="p-8 bg-white min-h-screen">
-      <h1 className="text-3xl font-bold mb-6">Products: {category}</h1>
+      <h1 className="text-3xl font-bold mb-6 items-center text-center text-slate-900">Showing Results for: {category.toUpperCase()}</h1>
 
       <div className="space-y-8">
         {products.map((product, index) => (
@@ -55,10 +69,67 @@ function AllProducts() {
                 <h2 className="text-xl font-bold">{product.product_name}</h2>
 
                 <ul className="mt-2 list-disc list-inside text-sm text-gray-700">
-                  {product.description.split(',').map((desc, idx) => (
-                    <li key={idx}>{desc.trim()}</li>
-                  ))}
-                </ul>
+  {(() => {
+    try {
+      const parsedDesc = JSON.parse(product.description);
+
+      if (parsedDesc && typeof parsedDesc === 'object') {
+        const entries = Object.entries(parsedDesc).flatMap(([section, details]) =>
+          typeof details === 'object' && details !== null
+            ? [
+                <li key={section} className="font-semibold mt-2">{section}:</li>,
+                ...Object.entries(details).map(([key, value], i) => (
+                  <li key={`${section}-${i}`} className="ml-4">
+                    {key}: {String(value)}
+                  </li>
+                ))
+              ]
+            : [
+                <li key={section}>
+                  {section}: {String(details)}
+                </li>
+              ]
+        );
+
+        const isExpanded = expandedIndices.has(index);
+        const visibleEntries = isExpanded ? entries : entries.slice(0, 5); // Show only 5 items by default
+
+        return (
+          <>
+            {visibleEntries}
+            {entries.length > 5 && (
+              <button
+                className="text-blue-600 mt-2 ml-1 text-sm hover:underline"
+                onClick={() => toggleExpanded(index)}
+              >
+                {isExpanded ? 'Show Less' : 'Show More'}
+              </button>
+            )}
+          </>
+        );
+      } else {
+        return [<li key="invalid">Invalid description format</li>];
+      }
+    } catch (e) {
+      return product.description
+        .split(',')
+        .slice(0, 5)
+        .map((desc, idx) => <li key={idx}>{desc.trim()}</li>)
+        .concat(
+          product.description.split(',').length > 5 ? (
+            <button
+              className="text-blue-600 mt-2 ml-1 text-sm hover:underline"
+              onClick={() => toggleExpanded(index)}
+            >
+              Show More
+            </button>
+          ) : []
+        );
+    }
+  })()}
+</ul>
+
+
 
                 <div className="mt-4">
                   <div className="flex items-center space-x-4">
